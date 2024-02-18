@@ -17,6 +17,7 @@ import {
 
 import { auth, db } from "@/api/firebase";
 import useToast from "@/hooks/Toaster";
+import useTextFormatter from "@/hooks/TextFormatter";
 
 const RegisterForm = () => {
   const [username, setUsername] = useState("");
@@ -33,12 +34,17 @@ const RegisterForm = () => {
     setIsCustomer(!isCustomer);
     setRole(isCustomer ? "seller" : "customer");
   };
-
+  const formattedUsername = useTextFormatter(username, "title");
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (password !== confirmPassword) {
       showToast("error", "Passwords do not match");
+      return;
+    }
+
+    if (!email.trim() || !username.trim()) {
+      showToast("error", "Email and username cannot be empty");
       return;
     }
 
@@ -59,18 +65,26 @@ const RegisterForm = () => {
 
         showToast(
           "success",
-          "User registered successfully. You'll be redirected to the login page."
+          `${formattedUsername} registered successfully. You'll be redirected to the login page.`
         );
 
         setTimeout(() => {
           navigate("/login");
-        }, 3000);
+        }, 2000);
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-
-        console.error({ errorCode, errorMessage });
+        let errorMessage;
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            errorMessage = "This email is already in use.";
+            break;
+          case "auth/weak-password":
+            errorMessage = "The password is too weak.";
+            break;
+          default:
+            errorMessage = "An unexpected error occurred.";
+            break;
+        }
         showToast("error", errorMessage);
       });
   };
@@ -93,7 +107,9 @@ const RegisterForm = () => {
               placeholder="Username"
               autoComplete="username"
               value={username}
-              onChange={(event) => setUsername(event.target.value)}
+              onChange={(event) =>
+                setUsername(event.target.value.toLowerCase().trim())
+              }
             />
           </div>
           <div className="space-y-1">
@@ -104,7 +120,7 @@ const RegisterForm = () => {
               placeholder="Email"
               autoComplete="email"
               value={email}
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => setEmail(event.target.value.toLowerCase())}
             />
           </div>
           <div className="space-y-1">
@@ -115,7 +131,7 @@ const RegisterForm = () => {
               placeholder="Password"
               autoComplete="new-password"
               value={password}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => setPassword(event.target.value.trim())}
             />
           </div>
           <div className="space-y-1">
@@ -126,7 +142,9 @@ const RegisterForm = () => {
               placeholder="Confirm password"
               autoComplete="new-password"
               value={confirmPassword}
-              onChange={(event) => setConfirmPassword(event.target.value)}
+              onChange={(event) =>
+                setConfirmPassword(event.target.value.trim())
+              }
             />
           </div>
           <div className="flex items-center mb-4">

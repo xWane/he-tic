@@ -9,7 +9,7 @@ type ToastType = "success" | "error" | "warning" | "info";
 const useToast = () => {
   const showToast = (type: ToastType, message: string) => {
     toast[type](message, {
-      position: "top-right",
+      position: "top-left",
       autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,

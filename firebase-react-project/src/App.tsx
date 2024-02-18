@@ -19,7 +19,7 @@ function App() {
             <Suspense
               fallback={
                 <div className="flex h-full w-full items-center justify-center">
-                  <div className="flex-row items-center justify-center gap-x-4">
+                  <div className="flex flex-row items-center justify-center gap-x-4">
                     <svg
                       className="animate-spin h-10 w-10 text-primary"
                       fill="none"

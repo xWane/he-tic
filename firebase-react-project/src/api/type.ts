@@ -5,6 +5,7 @@ export interface Product {
   imageUrl: string;
   description: string;
   sellerName: string;
+  sellerId: string;
 }
 
 export interface UserData {
@@ -17,7 +18,7 @@ export interface UserData {
 export interface UserState {
   isLogged: boolean;
   email: string | null;
-  userName: string | null;
+  username: string | null;
   userId: string | null;
   userRole: string | null;
 }

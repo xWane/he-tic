@@ -8,6 +8,7 @@ const Auth = lazy(() => import("@/pages/Auth"));
 const Home = lazy(() => import("@/pages/Home"));
 const Cart = lazy(() => import("@/pages/Cart"));
 const AddProduct = lazy(() => import("@/pages/AddProduct"));
+const SellerProducts = lazy(() => import("@/pages/SellerProducts"));
 
 export default function AppRoutes() {
   const isLogged = useSelector(selectUserState);
@@ -26,7 +27,10 @@ export default function AppRoutes() {
         <Route path="/cart" element={<Cart />} />
       )}
       {isLogged && role === "seller" && (
-        <Route path="/new-product" element={<AddProduct />} />
+        <>
+          <Route path="/new-product" element={<AddProduct />} />
+          <Route path="/my-products" element={<SellerProducts />} />
+        </>
       )}
       {!isLogged && (
         <>

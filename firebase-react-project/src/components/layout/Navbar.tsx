@@ -18,21 +18,18 @@ export default function Navbar() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  function getNameFromEmail(email: string) {
-    return email.substring(0, email.indexOf("@"));
-  }
-
-  const getUserRole = async (userId: string) => {
+  const getUserData = async (userId: string) => {
     const userDocRef = doc(db, "users", userId);
     try {
       const userDocSnap = await getDoc(userDocRef);
       if (userDocSnap.exists()) {
-        return userDocSnap.data().role;
+        const data = userDocSnap.data();
+        return { role: data.role, username: data.username };
       } else {
-        return null;
+        return { role: null, username: null };
       }
     } catch (error) {
-      console.error("Error getting user role:", error);
+      showToast("error", "Error getting user data : " + error);
       throw error;
     }
   };
@@ -43,34 +40,29 @@ export default function Navbar() {
         try {
           const uid = user.uid;
           const email = user.email;
-          let displayName = "";
-          const role = await getUserRole(user.uid);
 
-          if (user.displayName === null) {
-            displayName = getNameFromEmail(email!);
-          } else {
-            displayName = user.displayName;
-          }
+          const userData = await getUserData(user.uid);
+
           dispatch(
             SET_ACTIVE_USER({
               email: email!,
-              userName: displayName || getNameFromEmail(email!),
+              username: userData.username,
               userId: uid,
-              userRole: role,
+              userRole: userData.role,
               isLogged: true,
             })
           );
 
-          setUserName(displayName || email!);
-          setRole(role);
+          setUserName(userData.username);
+          setRole(userData.role);
         } catch (error) {
-          console.error("Error getting user role:", error);
+          showToast("error", "Error getting user role : " + error);
         }
       } else {
         dispatch(
           RESET_ACTIVE_USER({
             userId: null,
-            userName: null,
+            username: null,
             email: null,
             userRole: null,
             isLogged: false,
@@ -94,8 +86,7 @@ export default function Navbar() {
         const errorCode = error.code;
         const errorMessage = error.message;
 
-        console.error({ errorCode, errorMessage });
-        showToast("error", errorMessage);
+        showToast("error", errorCode + " : " + errorMessage);
       });
   };
 
@@ -108,7 +99,9 @@ export default function Navbar() {
               to="/"
               className=" py-5 lg:py-3 flex items-center gap-2 hover:opacity-80 hover:scale-95 transition"
             >
-              <h1 className="paragraph text-typo-reverse">Ecommerce</h1>
+              <h1 className="paragraph text-typo-reverse">
+                E-commerce Platform
+              </h1>
             </NavLink>
           </div>
           <div className="w-1/3">
@@ -129,7 +122,10 @@ export default function Navbar() {
               <span className="block lg:flex lg:gap-4 lg:items-center lg:justify-end">
                 <ListItem link="/home">Home</ListItem>
                 {role === "seller" && (
-                  <ListItem link="/new-product">Add Product</ListItem>
+                  <>
+                    <ListItem link="/new-product">Add Product</ListItem>
+                    <ListItem link="/my-products">My Products</ListItem>
+                  </>
                 )}
                 {role === "customer" && <ListItem link="/cart">Cart</ListItem>}
               </span>

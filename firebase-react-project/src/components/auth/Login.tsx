@@ -43,10 +43,7 @@ const LoginForm = () => {
         }, 3000);
       })
       .catch((error) => {
-        const errorCode = error.code;
         const errorMessage = error.message;
-
-        console.error({ errorCode, errorMessage });
         showToast("error", errorMessage);
       });
   };

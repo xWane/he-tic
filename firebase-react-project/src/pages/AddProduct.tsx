@@ -10,7 +10,8 @@ import { db, storage } from "@/api/firebase";
 import useToast from "@/hooks/Toaster";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectUserState } from "@/redux/slice/authSlice";
+import { selectUserId, selectUserState } from "@/redux/slice/authSlice";
+import useTextFormatter from "@/hooks/TextFormatter";
 
 const AddProductPage: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -19,6 +20,7 @@ const AddProductPage: React.FC = () => {
   const [description, setDescription] = useState("");
 
   const userName = useSelector(selectUserState);
+  const userId = useSelector(selectUserId);
 
   const showToast = useToast();
   const navigate = useNavigate();
@@ -40,8 +42,20 @@ const AddProductPage: React.FC = () => {
     }
   };
 
+  const handlePriceChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    const regex = /^\d+(\.\d{0,2})?$/; // Regular expression to allow only numbers with maximum 2 decimal places
+    if (regex.test(value) || value === "") {
+      setPrice(value);
+    }
+  };
+
+  const formattedDescription = useTextFormatter(description, "paragraph");
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    setDescription(formattedDescription);
 
     const sellerName = userName;
 
@@ -61,6 +75,7 @@ const AddProductPage: React.FC = () => {
           imageUrl: imageUrl,
           date: new Date(),
           sellerName: sellerName,
+          sellerId: userId,
         };
 
         await addDoc(collection(db, "products"), productData);
@@ -104,7 +119,7 @@ const AddProductPage: React.FC = () => {
             id="name"
             type="text"
             value={name}
-            onChange={(event) => setName(event.target.value)}
+            onChange={(event) => setName(event.target.value.trim())}
             className="mb-4"
           />
         </div>
@@ -112,9 +127,9 @@ const AddProductPage: React.FC = () => {
           <Label htmlFor="price">Product Price</Label>
           <Input
             id="price"
-            type="number"
+            type="text"
             value={price}
-            onChange={(event) => setPrice(event.target.value)}
+            onChange={handlePriceChange}
             className="mb-4"
           />
         </div>

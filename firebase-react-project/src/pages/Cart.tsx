@@ -1,4 +1,3 @@
-// ShoppingCart3.js
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { db } from "@/api/firebase";
@@ -12,7 +11,7 @@ import {
 import { selectUserId } from "@/redux/slice/authSlice";
 import { CartItem } from "@/api/type";
 
-const ShoppingCart3 = () => {
+const ShoppingCartPage = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const userId = useSelector(selectUserId);
   const [total, setTotal] = useState(0);
@@ -47,7 +46,7 @@ const ShoppingCart3 = () => {
     };
 
     setTotal(calculateTotal());
-  }, [userId, cartItems]);
+  }, []);
 
   const handleRemoveItem = async (itemId: string) => {
     await deleteDoc(doc(db, `carts/${userId}/items`, itemId));
@@ -123,4 +122,4 @@ const ShoppingCart3 = () => {
   );
 };
 
-export default ShoppingCart3;
+export default ShoppingCartPage;
